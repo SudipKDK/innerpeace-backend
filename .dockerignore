@@ -1,0 +1,40 @@
+# Version control & docs
+.git
+.github
+README.md
+
+# Dependencies & build outputs
+node_modules
+dist
+build
+
+# Local media uploads
+uploads/
+
+# Environment files
+.env
+.env.*
+!.env.docker
+
+# Test files & coverage
+coverage
+.nyc_output
+test
+**/*.spec.ts
+
+# Docker Compose files
+docker-compose*.yml
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS & Editor files
+.DS_Store
+Thumbs.db
+.idea
+.vscode
+*.swp

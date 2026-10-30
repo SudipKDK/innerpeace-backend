@@ -1,0 +1,66 @@
+# Compiled output
+/dist
+/build
+
+# Node dependencies
+/node_modules
+node_modules/
+
+# Local uploads storage
+/uploads
+uploads/
+
+# Environment variable files
+.env
+.env.*
+.env.local
+.env.*.local
+!.env.example
+!.env.docker
+
+# Sensitive keys and certificates
+*.pem
+*.key
+*.cert
+*.crt
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test coverage
+/coverage
+/.nyc_output
+
+# Docker Compose overrides
+docker-compose.override.yml
+
+# IDEs & editors
+/.idea
+.project
+.classpath
+.settings/
+*.sublime-workspace
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Temporary files
+.temp
+.tmp
+pids
+*.pid
+*.seed
+*.pid.lock
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
