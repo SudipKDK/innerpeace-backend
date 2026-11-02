@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, FileTypeValidator, Get, MaxFileSizeValidator, Param, ParseFilePipe, ParseIntPipe, Patch, Post, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { JourneyService } from '../service/journey.service';
 import { CreateJourneyDto } from '../dto/create-journey.dto';
 import { AuthGuard } from '@nestjs/passport';
@@ -8,6 +8,7 @@ import { Roles } from 'src/common/decorator/roles.decorator';
 import { Role } from 'src/common/enum/role.enum';
 import { UpdateJourneyDto } from '../dto/update-journey.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { validateImageBuffer } from '../../common/utils/validate-image';
 
 @Controller('journey')
 export class JourneyController {
@@ -32,33 +33,14 @@ export class JourneyController {
       required: ['title', 'eventDate'],
     },
   })
-  create(
+  async create(
     @Body() createJourneyDto: CreateJourneyDto,
-    @UploadedFile(
-      new ParseFilePipe({
-        fileIsRequired: false,
-        validators: [
-          new MaxFileSizeValidator({ maxSize: 10 * 1024 * 1024 }),
-          new FileTypeValidator({ fileType: /^image\/(jpeg|jpg|png|webp|gif)$/ }),
-        ],
-        exceptionFactory: (errors) => {
-          const messages = Array.isArray(errors)
-            ? errors.map((error) =>
-                typeof error === 'object' && (error as any).constraints
-                  ? Object.values((error as any).constraints).join(', ')
-                  : (error as any).message || 'File validation failed',
-              )
-            : [typeof errors === 'string' ? errors : 'File validation failed'];
-
-          return new BadRequestException(
-            `File validation failed: ${messages.join('; ')}`,
-          );
-        },
-      }),
-    )
-    image: Express.Multer.File,
+    @UploadedFile() image: Express.Multer.File | undefined,
     @Req() req: any,
   ) {
+    if (image) {
+      await validateImageBuffer(image);
+    }
     return this.journeyService.createJourney(createJourneyDto, image);
   }
 
@@ -81,33 +63,15 @@ export class JourneyController {
       },
     },
   })
-  update(
+  async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateJourneyDto: UpdateJourneyDto,
-    @UploadedFile(
-      new ParseFilePipe({
-        fileIsRequired: false,
-        validators: [
-          new MaxFileSizeValidator({ maxSize: 10 * 1024 * 1024 }), // 10MB
-          new FileTypeValidator({
-            fileType: /^image\/(jpeg|jpg|png|webp|gif)$/,
-          }),
-        ],
-        exceptionFactory: (errors) => {
-          const messages = Array.isArray(errors)
-            ? errors.map((error) =>
-                typeof error === 'object' && (error as any).constraints
-                  ? Object.values((error as any).constraints).join(', ')
-                  : (error as any).message || 'File validation failed',
-              )
-            : [typeof errors === 'string' ? errors : 'File validation failed'];
-          return new BadRequestException(`File validation failed: ${messages.join('; ')}`);
-        },
-      }),
-    )
-    image: Express.Multer.File,
+    @UploadedFile() image: Express.Multer.File | undefined,
     @Req() req: any,
   ) {
+    if (image) {
+      await validateImageBuffer(image);
+    }
     return this.journeyService.updateJourney(id, updateJourneyDto, image);
   }
   @UseGuards(AuthGuard('jwt'), RolesGuard)

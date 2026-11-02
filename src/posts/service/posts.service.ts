@@ -33,7 +33,7 @@ export class PostsService {
     return slug;
   }
   
-  async createPost(createPostDto: CreatePostDto, image: Express.Multer.File, authorId: number) {
+  async createPost(createPostDto: CreatePostDto, image: Express.Multer.File | undefined, authorId: number) {
     const user = await this.userService.getUserById(authorId);
     const slug = await this.generateUniqueSlugFromTitle(createPostDto.title);
     let imageKey: string | null = null;
@@ -107,8 +107,7 @@ export class PostsService {
   async updatePost(
     id: number,
     updatePostDto: UpdatePostDto,
-    image: Express.Multer.File,
-    userId: number,
+    image: Express.Multer.File | undefined,    userId: number,
   ) {
     const post = await this.postRepository.findOne({
       where: { id },

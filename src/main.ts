@@ -9,11 +9,38 @@ import { SecurityHeadersMiddleware } from './common/middleware/security-headers.
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  const configuredOrigins = (process.env.CORS_ORIGIN || '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+  const defaultOrigins = [
+    'http://localhost',
+    'http://localhost:80',
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'http://127.0.0.1',
+    'http://127.0.0.1:80',
+    'http://127.0.0.1:5173',
+    'http://127.0.0.1:3000',
+  ];
+
+  const allowedOrigins = Array.from(
+    new Set([...defaultOrigins, ...configuredOrigins]),
+  );
+
   app.enableCors({
-    origin: (process.env.CORS_ORIGIN || 'http://localhost:5173,http://127.0.0.1:5173')
-      .split(',')
-      .map((origin) => origin.trim()),
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, curl, server-to-server)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(null, false);
+      }
+    },
     credentials: true,
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
   });
 
   // Global middlewares

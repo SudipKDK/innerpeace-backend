@@ -8,7 +8,6 @@ import { PostsModule } from './posts/posts.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { MailModule } from './mail/mail.module';
-import { UploadsModule } from './uploads/uploads.module';
 import { MomentsModule } from './moments/moments.module';
 import { JourneyModule } from './journey/journey.module';
 import { ReelsModule } from './reels/reels.module';
@@ -30,7 +29,6 @@ import { UploadModule } from './upload/upload.module';
     UsersModule,
     AuthModule,
     MailModule,
-    UploadsModule,
     MomentsModule,
     JourneyModule,
     ReelsModule,

@@ -16,7 +16,6 @@ uploads/
 .env.local
 .env.*.local
 !.env.example
-!.env.docker
 
 # Sensitive keys and certificates
 *.pem

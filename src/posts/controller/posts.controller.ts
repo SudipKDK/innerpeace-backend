@@ -13,9 +13,6 @@ import {
   UploadedFile,
   UseGuards,
   UseInterceptors,
-  ParseFilePipe,
-  MaxFileSizeValidator,
-  FileTypeValidator,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { PostsService } from '../service/posts.service';
@@ -27,6 +24,7 @@ import { CreatePostDto } from '../dto/create-post.dto';
 import { UpdatePostDto } from '../dto/update-post.dto';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { validateImageBuffer } from '../../common/utils/validate-image';
 
 @ApiTags('posts')
 @Controller('posts')
@@ -88,37 +86,13 @@ export class PostsController {
   )
   async create(
     @Body() createPostDto: CreatePostDto,
-    @UploadedFile(
-      new ParseFilePipe({
-        fileIsRequired: false,
-        validators: [
-          new MaxFileSizeValidator({ maxSize: 10 * 1024 * 1024 }), // 10MB
-          new FileTypeValidator({
-            fileType: /^image\/(jpeg|jpg|png|webp|gif)$/,
-          }),
-        ],
-        exceptionFactory: (errors) => {
-          const messages = Array.isArray(errors)
-            ? errors.flatMap((error: any) =>
-              error?.constraints
-                ? Object.values(error.constraints)
-                : [error?.message ?? 'File validation failed'],
-            )
-            : [typeof errors === 'string' ? errors : 'File validation failed'];
-
-          return new BadRequestException({
-            message: 'File validation failed',
-            details: messages,
-          });
-        },
-
-      }),
-    )
-    image: Express.Multer.File,
+    @UploadedFile() image: Express.Multer.File | undefined,
     @Req() req: any,
   ) {
-    const result = await this.postsService.createPost(createPostDto, image, req.user.id);
-    return result;
+    if (image) {
+      await validateImageBuffer(image);
+    }
+    return this.postsService.createPost(createPostDto, image, req.user.id);
   }
 
   @Get()
@@ -150,7 +124,7 @@ export class PostsController {
   }
 
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @ApiBearerAuth()
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Update a post (optionally with image)' })
@@ -189,37 +163,19 @@ export class PostsController {
   @ApiResponse({ status: 200, description: 'Post updated' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 404, description: 'Post not found' })
-  update(
+  async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updatePostDto: UpdatePostDto,
-    @UploadedFile(
-      new ParseFilePipe({
-        fileIsRequired: false,
-        validators: [
-          new MaxFileSizeValidator({ maxSize: 10 * 1024 * 1024 }), // 10MB
-          new FileTypeValidator({
-            fileType: /^image\/(jpeg|jpg|png|webp|gif)$/,
-          }),
-        ],
-        exceptionFactory: (errors) => {
-          const messages = Array.isArray(errors)
-            ? errors.map((error) =>
-              typeof error === 'object' && error.constraints
-                ? Object.values(error.constraints).join(', ')
-                : (error as any).message || 'File validation failed',
-            )
-            : [typeof errors === 'string' ? errors : 'File validation failed'];
-          return new BadRequestException(`File validation failed: ${messages.join('; ')}`);
-        },
-      }),
-    )
-    image: Express.Multer.File,
+    @UploadedFile() image: Express.Multer.File | undefined,
     @Req() req: any,
   ) {
+    if (image) {
+      await validateImageBuffer(image);
+    }
     return this.postsService.updatePost(id, updatePostDto, image, req.user.id);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @ApiBearerAuth()
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Delete a post' })

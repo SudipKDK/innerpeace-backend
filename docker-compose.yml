@@ -1,24 +1,4 @@
 services:
-  postgres:
-    image: postgres:16-alpine
-    container_name: innerpeace-postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${DB_USER:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASS:-postgres}
-      POSTGRES_DB: ${DB_NAME:-innerpeace_db}
-    ports:
-      - "${DB_PORT:-5432}:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-innerpeace_db}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    networks:
-      - innerpeace-backend-net
-
   backend:
     build:
       context: .
@@ -32,25 +12,23 @@ services:
     environment:
       - DB_HOST=postgres
       - DB_PORT=5432
-      - DB_USER=${DB_USER:-postgres}
-      - DB_PASS=${DB_PASS:-postgres}
-      - DB_NAME=${DB_NAME:-innerpeace_db}
+      - DB_USER=postgres
+      - DB_PASS=postgres
+      - DB_NAME=innerpeace_db
       - PORT=3000
       - NODE_ENV=production
+      - CORS_ORIGIN=http://localhost,http://localhost:80,http://localhost:5173,http://127.0.0.1,http://127.0.0.1:80,http://127.0.0.1:5173
       - AWS_BUCKET=innerpeace-bucket-objects-store
       - AWS_REGION=ap-south-1
-      - AWS_S3_PUBLIC_BASE_URL=https://innerpeace-bucket-objects-store.s3.ap-south-1.amazonaws.com
-    depends_on:
-      postgres:
-        condition: service_healthy
+      - AWS_S3_PUBLIC_BASE_URL=https://d1997ddho4gari.cloudfront.net
     networks:
       - innerpeace-backend-net
 
-volumes:
-  postgres_data:
-    name: innerpeace_postgres_data
-
+# PostgreSQL is already running externally on this machine - the
+# `innerpeace-postgres` container (postgres:16-alpine), attached to the
+# pre-existing `innerpeace_backend_net` network. This compose file does NOT
+# manage it; we join the same external network and reach it as `postgres`.
 networks:
   innerpeace-backend-net:
     name: innerpeace_backend_net
-    driver: bridge
+    external: true
