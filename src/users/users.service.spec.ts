@@ -17,14 +17,18 @@ describe('UsersService', () => {
     userRepo = {
       findOne: jest.fn(),
       create: jest.fn().mockImplementation((dto) => dto),
-      save: jest.fn().mockImplementation((u) => Promise.resolve({ id: 1, ...u })),
+      save: jest
+        .fn()
+        .mockImplementation((u) => Promise.resolve({ id: 1, ...u })),
       find: jest.fn().mockResolvedValue([]),
     };
 
     pwResetRepo = {
       findOne: jest.fn(),
       create: jest.fn().mockImplementation((dto) => dto),
-      save: jest.fn().mockImplementation((t) => Promise.resolve({ id: 1, ...t })),
+      save: jest
+        .fn()
+        .mockImplementation((t) => Promise.resolve({ id: 1, ...t })),
       update: jest.fn().mockResolvedValue({ affected: 1 }),
     };
 
@@ -36,7 +40,10 @@ describe('UsersService', () => {
       providers: [
         UsersService,
         { provide: getRepositoryToken(User), useValue: userRepo },
-        { provide: getRepositoryToken(PasswordResetToken), useValue: pwResetRepo },
+        {
+          provide: getRepositoryToken(PasswordResetToken),
+          useValue: pwResetRepo,
+        },
         { provide: MailService, useValue: mailService },
       ],
     }).compile();
@@ -50,10 +57,17 @@ describe('UsersService', () => {
 
   describe('createUser', () => {
     it('should throw ConflictException if email exists', async () => {
-      userRepo.findOne.mockResolvedValueOnce({ id: 1, email: 'exists@example.com' });
+      userRepo.findOne.mockResolvedValueOnce({
+        id: 1,
+        email: 'exists@example.com',
+      });
 
       await expect(
-        service.createUser({ email: 'exists@example.com', username: 'u', password: 'P1!' }),
+        service.createUser({
+          email: 'exists@example.com',
+          username: 'u',
+          password: 'P1!',
+        }),
       ).rejects.toThrow(ConflictException);
     });
 
@@ -83,8 +97,16 @@ describe('UsersService', () => {
         role: 'user',
       });
 
-      const result = await service.validateUser('test@example.com', 'secret123');
-      expect(result).toEqual({ id: 1, email: 'test@example.com', username: 'test', role: 'user' });
+      const result = await service.validateUser(
+        'test@example.com',
+        'secret123',
+      );
+      expect(result).toEqual({
+        id: 1,
+        email: 'test@example.com',
+        username: 'test',
+        role: 'user',
+      });
     });
 
     it('should return null if password does not match', async () => {

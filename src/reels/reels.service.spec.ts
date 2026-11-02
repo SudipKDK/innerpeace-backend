@@ -11,7 +11,9 @@ describe('ReelsService', () => {
   beforeEach(async () => {
     repo = {
       create: jest.fn().mockImplementation((dto) => dto),
-      save: jest.fn().mockImplementation((r) => Promise.resolve({ id: 1, ...r })),
+      save: jest
+        .fn()
+        .mockImplementation((r) => Promise.resolve({ id: 1, ...r })),
       find: jest.fn().mockResolvedValue([]),
       findOne: jest.fn(),
       remove: jest.fn().mockResolvedValue(undefined),
@@ -62,7 +64,10 @@ describe('ReelsService', () => {
 
   describe('create', () => {
     it('should create and save a reel', async () => {
-      const dto = { title: 'New Reel', youtubeUrl: 'https://youtube.com/reel1' };
+      const dto = {
+        title: 'New Reel',
+        youtubeUrl: 'https://youtube.com/reel1',
+      };
       const result = await service.create(dto as any);
 
       expect(result.youtubeUrl).toBe('https://youtube.com/reel1');

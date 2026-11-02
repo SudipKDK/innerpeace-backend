@@ -1,12 +1,9 @@
 import {
   Injectable,
   ArgumentMetadata,
-  BadRequestException,
   ValidationPipe,
-  ValidationError,
+  BadRequestException,
 } from '@nestjs/common';
-import { validate } from 'class-validator';
-import { plainToClass } from 'class-transformer';
 
 @Injectable()
 export class CustomValidationPipe extends ValidationPipe {
@@ -56,7 +53,7 @@ export class CustomValidationPipe extends ValidationPipe {
         for (const pattern of suspiciousPatterns) {
           if (pattern.test(value)) {
             throw new BadRequestException(
-              'Input contains potentially malicious content'
+              'Input contains potentially malicious content',
             );
           }
         }

@@ -1,17 +1,29 @@
-import { BadRequestException, Body, Controller, Get, Param, ParseIntPipe, Post, UseGuards } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { MomentsService } from '../service/moments.service';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from 'src/common/guards/role.guard';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { Roles } from 'src/common/decorator/roles.decorator';
 import { Role } from 'src/common/enum/role.enum';
-import { PresignDto } from '../dto/presigned.dto';
 import { MomentVideoStatus } from 'src/common/enum/moment-status.enum';
 
 @Controller('moments')
 export class MomentsController {
-  constructor(private readonly momentsService: MomentsService) {
-  }
+  constructor(private readonly momentsService: MomentsService) {}
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @ApiBearerAuth('jwt')
@@ -38,12 +50,14 @@ export class MomentsController {
       },
     },
   })
-  @ApiResponse({ status: 400, description: 'Validation error (mimeType must be video/*)' })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation error (mimeType must be video/*)',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @Roles(Role.ADMIN)
   @Post('presign')
   async presign(@Body() body: { mimeType: string; ext?: string }) {
-
     console.log('BODY RECEIVED:', body);
     const mimeType = (body?.mimeType || '').replace(/&#x2F;|&#47;/g, '/');
 
@@ -51,7 +65,6 @@ export class MomentsController {
       throw new BadRequestException('mimeType must be a video/*');
     }
     return this.momentsService.createPresignedUpload(mimeType, body.ext);
-
   }
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @ApiBearerAuth('jwt')

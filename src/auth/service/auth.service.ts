@@ -11,15 +11,17 @@ export class AuthService {
   ) {}
 
   async validateUser(body: { email: string; password: string }) {
-    const user = await this.usersService.validateUser(body.email, body.password);
+    const user = await this.usersService.validateUser(
+      body.email,
+      body.password,
+    );
     if (!user) throw new UnauthorizedException('Invalid credentials');
     return user;
   }
 
-  async register(registerUserDto:RegisterUserDto){
-
-        const user = await this.usersService.createUser(registerUserDto);
-        return user;
+  async register(registerUserDto: RegisterUserDto) {
+    const user = await this.usersService.createUser(registerUserDto);
+    return user;
   }
 
   login(user: { username: string; id: number; role: string }) {

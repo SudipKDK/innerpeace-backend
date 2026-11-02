@@ -6,16 +6,20 @@ import { RegisterUserDto } from '../dto/register.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { ForgotPasswordDto } from '../dto/forget-password.dto';
 import { ResetPasswordDto } from '../dto/reset-password.dto';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService,
-    private readonly usersService: UsersService
-  ) { }
-
-
+  constructor(
+    private readonly authService: AuthService,
+    private readonly usersService: UsersService,
+  ) {}
 
   @Post('register')
   @ApiOperation({ summary: 'Register a new user' })
@@ -46,7 +50,10 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Password reset successful' })
   @ApiResponse({ status: 400, description: 'Invalid or expired token' })
   reset(@Body() resetPasswordDto: ResetPasswordDto) {
-    return this.authService.resetPassword(resetPasswordDto.token, resetPasswordDto.newPassword);
+    return this.authService.resetPassword(
+      resetPasswordDto.token,
+      resetPasswordDto.newPassword,
+    );
   }
 
   @UseGuards(AuthGuard())
@@ -58,7 +65,4 @@ export class AuthController {
   me(@Req() req: any) {
     return req.user;
   }
-
-
-
 }

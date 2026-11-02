@@ -1,3 +1,7 @@
+jest.mock('../common/utils/validate-image', () => ({
+  validateImageBuffer: jest.fn().mockResolvedValue(undefined),
+}));
+
 import { Test, TestingModule } from '@nestjs/testing';
 import { JourneyController } from './controller/journey.controller';
 import { JourneyService } from './service/journey.service';
@@ -31,7 +35,10 @@ describe('JourneyController', () => {
   describe('create', () => {
     it('should call service.createJourney', async () => {
       const dto = { title: 'Trip', eventDate: '2026-01-01' } as any;
-      (service.createJourney as jest.Mock).mockResolvedValueOnce({ id: 1, ...dto });
+      (service.createJourney as jest.Mock).mockResolvedValueOnce({
+        id: 1,
+        ...dto,
+      });
 
       const result = await controller.create(dto, null as any, {});
       expect(result).toHaveProperty('id', 1);
@@ -51,7 +58,9 @@ describe('JourneyController', () => {
 
   describe('getAllAdmin', () => {
     it('should call service.getAllJourneyAdmin', async () => {
-      (service.getAllJourneyAdmin as jest.Mock).mockResolvedValueOnce([{ id: 1 }]);
+      (service.getAllJourneyAdmin as jest.Mock).mockResolvedValueOnce([
+        { id: 1 },
+      ]);
 
       const result = await controller.getAllAdmin();
       expect(result).toEqual([{ id: 1 }]);
@@ -61,7 +70,9 @@ describe('JourneyController', () => {
 
   describe('delete', () => {
     it('should call service.removeJourney', async () => {
-      (service.removeJourney as jest.Mock).mockResolvedValueOnce({ message: 'Deleted' });
+      (service.removeJourney as jest.Mock).mockResolvedValueOnce({
+        message: 'Deleted',
+      });
 
       const result = await controller.delete(1, {});
       expect(result).toEqual({ message: 'Deleted' });

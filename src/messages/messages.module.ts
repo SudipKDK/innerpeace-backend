@@ -5,9 +5,9 @@ import { MessagesService } from './service/messages.service';
 import { MessagesController } from './controller/messages.controller';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([AnonymousMessage])],
-    providers: [MessagesService],
-    controllers: [MessagesController],
-    exports: [MessagesService],
+  imports: [TypeOrmModule.forFeature([AnonymousMessage])],
+  providers: [MessagesService],
+  controllers: [MessagesController],
+  exports: [MessagesService],
 })
-export class MessagesModule { }
+export class MessagesModule {}

@@ -1,4 +1,4 @@
-export enum JourneyStatus{
-    DRAFT= 'draft',
-    PUBLISHED='published'
+export enum JourneyStatus {
+  DRAFT = 'draft',
+  PUBLISHED = 'published',
 }

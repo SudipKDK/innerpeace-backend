@@ -8,12 +8,12 @@ import {
   UnauthorizedException,
   ForbiddenException,
   NotFoundException,
-  ConflictException,  
+  ConflictException,
   PayloadTooLargeException,
   UnsupportedMediaTypeException,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { QueryFailedError, EntityNotFoundError, TypeORMError } from 'typeorm';
+import { QueryFailedError, EntityNotFoundError } from 'typeorm';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
@@ -121,7 +121,8 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       const error = exception as any;
 
       // Handle unique constraint violations
-      if (error.code === '23505') { // PostgreSQL unique violation
+      if (error.code === '23505') {
+        // PostgreSQL unique violation
         return res.status(HttpStatus.CONFLICT).json({
           success: false,
           message: 'Resource already exists',
@@ -134,7 +135,8 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       }
 
       // Handle foreign key constraint violations
-      if (error.code === '23503') { // PostgreSQL foreign key violation
+      if (error.code === '23503') {
+        // PostgreSQL foreign key violation
         return res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
           message: 'Invalid reference',
@@ -147,7 +149,8 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       }
 
       // Handle check constraint violations
-      if (error.code === '23514') { // PostgreSQL check violation
+      if (error.code === '23514') {
+        // PostgreSQL check violation
         return res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
           message: 'Invalid data provided',
@@ -201,7 +204,9 @@ export class GlobalExceptionFilter implements ExceptionFilter {
           : response?.message || exception.message || 'Request failed';
 
       const errors =
-        typeof response === 'object' && response?.errors ? response.errors : null;
+        typeof response === 'object' && response?.errors
+          ? response.errors
+          : null;
 
       return res.status(statusCode).json({
         success: false,
@@ -217,7 +222,8 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     // 5) Handle unknown errors
     console.error('Unhandled exception:', {
       name: exception instanceof Error ? exception.name : 'Unknown',
-      message: exception instanceof Error ? exception.message : String(exception),
+      message:
+        exception instanceof Error ? exception.message : String(exception),
       stack: exception instanceof Error ? exception.stack : undefined,
       method,
       path,
@@ -226,9 +232,12 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
     return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: process.env.NODE_ENV === 'production'
-        ? 'An unexpected error occurred'
-        : (exception instanceof Error ? exception.message : 'Internal server error'),
+      message:
+        process.env.NODE_ENV === 'production'
+          ? 'An unexpected error occurred'
+          : exception instanceof Error
+            ? exception.message
+            : 'Internal server error',
       error: 'Internal Server Error',
       statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
       timestamp,

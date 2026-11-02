@@ -25,7 +25,11 @@ describe('UsersController', () => {
 
   describe('get', () => {
     it('should return user details by id', async () => {
-      const mockUser = { id: 1, username: 'testuser', email: 'test@example.com' };
+      const mockUser = {
+        id: 1,
+        username: 'testuser',
+        email: 'test@example.com',
+      };
       (service.getUserById as jest.Mock).mockResolvedValueOnce(mockUser);
 
       const result = await controller.get(1);

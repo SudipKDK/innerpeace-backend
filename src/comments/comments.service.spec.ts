@@ -13,7 +13,9 @@ describe('CommentsService', () => {
   beforeEach(async () => {
     commentRepo = {
       create: jest.fn().mockImplementation((dto) => dto),
-      save: jest.fn().mockImplementation((c) => Promise.resolve({ id: 1, ...c })),
+      save: jest
+        .fn()
+        .mockImplementation((c) => Promise.resolve({ id: 1, ...c })),
       findAndCount: jest.fn().mockResolvedValue([[], 0]),
       findOne: jest.fn(),
       delete: jest.fn(),
@@ -42,7 +44,11 @@ describe('CommentsService', () => {
     it('should create comment if post exists', async () => {
       postRepo.findOne.mockResolvedValueOnce({ id: 1, title: 'Test Post' });
 
-      const result = await service.createForPost(1, { comment: 'Nice!' }, '127.0.0.1');
+      const result = await service.createForPost(
+        1,
+        { comment: 'Nice!' },
+        '127.0.0.1',
+      );
       expect(result).toHaveProperty('id', 1);
       expect(result.comment).toBe('Nice!');
       expect(commentRepo.save).toHaveBeenCalled();
@@ -51,9 +57,9 @@ describe('CommentsService', () => {
     it('should throw NotFoundException if post not found', async () => {
       postRepo.findOne.mockResolvedValueOnce(null);
 
-      await expect(service.createForPost(999, { comment: 'Nice!' })).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        service.createForPost(999, { comment: 'Nice!' }),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -72,7 +78,9 @@ describe('CommentsService', () => {
     it('should throw NotFoundException if comment does not exist', async () => {
       commentRepo.findOne.mockResolvedValueOnce(null);
 
-      await expect(service.deleteComment(999)).rejects.toThrow(NotFoundException);
+      await expect(service.deleteComment(999)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });

@@ -5,9 +5,9 @@ import { ReelsService } from './service/reels.service';
 import { ReelsController } from './controller/reels.controller';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Reel])],
-    controllers: [ReelsController],
-    providers: [ReelsService],
-    exports: [ReelsService],
+  imports: [TypeOrmModule.forFeature([Reel])],
+  controllers: [ReelsController],
+  providers: [ReelsService],
+  exports: [ReelsService],
 })
-export class ReelsModule { }
+export class ReelsModule {}

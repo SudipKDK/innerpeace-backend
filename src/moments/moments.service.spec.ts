@@ -14,7 +14,9 @@ describe('MomentsService', () => {
   beforeEach(async () => {
     repo = {
       create: jest.fn().mockImplementation((dto) => dto),
-      save: jest.fn().mockImplementation((m) => Promise.resolve({ id: 1, ...m })),
+      save: jest
+        .fn()
+        .mockImplementation((m) => Promise.resolve({ id: 1, ...m })),
       findOneBy: jest.fn(),
       find: jest.fn().mockResolvedValue([]),
     };
@@ -47,7 +49,10 @@ describe('MomentsService', () => {
       expect(result.uploadUrl).toBe('https://s3-upload-url');
       expect(result.key).toMatch(/^moments\/raw\/[a-f0-9-]+\.mp4$/);
       expect(repo.save).toHaveBeenCalled();
-      expect(s3Service.presignPutObject).toHaveBeenCalledWith(result.key, 'video/mp4');
+      expect(s3Service.presignPutObject).toHaveBeenCalledWith(
+        result.key,
+        'video/mp4',
+      );
     });
   });
 
@@ -65,17 +70,25 @@ describe('MomentsService', () => {
     it('should throw NotFoundException if moment not found', async () => {
       repo.findOneBy.mockResolvedValueOnce(null);
 
-      await expect(service.markUploaded(999)).rejects.toThrow(NotFoundException);
+      await expect(service.markUploaded(999)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
   describe('getPlayUrl', () => {
     it('should return presigned get URL', async () => {
-      repo.findOneBy.mockResolvedValueOnce({ id: 1, rawKey: 'moments/raw/1.mp4' });
+      repo.findOneBy.mockResolvedValueOnce({
+        id: 1,
+        rawKey: 'moments/raw/1.mp4',
+      });
 
       const result = await service.getPlayUrl(1);
       expect(result).toEqual({ url: 'https://s3-get-url' });
-      expect(s3Service.presignGetObject).toHaveBeenCalledWith('moments/raw/1.mp4', 600);
+      expect(s3Service.presignGetObject).toHaveBeenCalledWith(
+        'moments/raw/1.mp4',
+        600,
+      );
     });
   });
 });

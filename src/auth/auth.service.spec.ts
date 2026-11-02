@@ -39,12 +39,22 @@ describe('AuthService', () => {
 
   describe('validateUser', () => {
     it('should return user if credentials are valid', async () => {
-      const mockUser = { id: 1, email: 'test@example.com', role: Role.USER } as any;
+      const mockUser = {
+        id: 1,
+        email: 'test@example.com',
+        role: Role.USER,
+      } as any;
       (usersService.validateUser as jest.Mock).mockResolvedValueOnce(mockUser);
 
-      const result = await service.validateUser({ email: 'test@example.com', password: 'password' });
+      const result = await service.validateUser({
+        email: 'test@example.com',
+        password: 'password',
+      });
       expect(result).toEqual(mockUser);
-      expect(usersService.validateUser).toHaveBeenCalledWith('test@example.com', 'password');
+      expect(usersService.validateUser).toHaveBeenCalledWith(
+        'test@example.com',
+        'password',
+      );
     });
 
     it('should throw UnauthorizedException if credentials are invalid', async () => {
@@ -58,7 +68,11 @@ describe('AuthService', () => {
 
   describe('register', () => {
     it('should register a new user', async () => {
-      const dto = { email: 'test@example.com', password: 'Pass123!', username: 'testuser' } as any;
+      const dto = {
+        email: 'test@example.com',
+        password: 'Pass123!',
+        username: 'testuser',
+      } as any;
       const created = { id: 1, ...dto };
       (usersService.createUser as jest.Mock).mockResolvedValueOnce(created);
 
@@ -72,29 +86,46 @@ describe('AuthService', () => {
     it('should return access token', () => {
       (jwtService.sign as jest.Mock).mockReturnValueOnce('mocked.jwt.token');
 
-      const result = service.login({ username: 'testuser', id: 1, role: 'user' });
+      const result = service.login({
+        username: 'testuser',
+        id: 1,
+        role: 'user',
+      });
       expect(result).toEqual({ access_token: 'mocked.jwt.token' });
-      expect(jwtService.sign).toHaveBeenCalledWith({ username: 'testuser', sub: 1, role: 'user' });
+      expect(jwtService.sign).toHaveBeenCalledWith({
+        username: 'testuser',
+        sub: 1,
+        role: 'user',
+      });
     });
   });
 
   describe('forgotPassword', () => {
     it('should delegate to usersService.forgotPassword', async () => {
-      (usersService.forgotPassword as jest.Mock).mockResolvedValueOnce({ message: 'Reset email sent' });
+      (usersService.forgotPassword as jest.Mock).mockResolvedValueOnce({
+        message: 'Reset email sent',
+      });
 
       const result = await service.forgotPassword('test@example.com');
       expect(result).toEqual({ message: 'Reset email sent' });
-      expect(usersService.forgotPassword).toHaveBeenCalledWith('test@example.com');
+      expect(usersService.forgotPassword).toHaveBeenCalledWith(
+        'test@example.com',
+      );
     });
   });
 
   describe('resetPassword', () => {
     it('should delegate to usersService.resetPassword', async () => {
-      (usersService.resetPassword as jest.Mock).mockResolvedValueOnce({ message: 'Password reset' });
+      (usersService.resetPassword as jest.Mock).mockResolvedValueOnce({
+        message: 'Password reset',
+      });
 
       const result = await service.resetPassword('token-123', 'newPass123!');
       expect(result).toEqual({ message: 'Password reset' });
-      expect(usersService.resetPassword).toHaveBeenCalledWith('token-123', 'newPass123!');
+      expect(usersService.resetPassword).toHaveBeenCalledWith(
+        'token-123',
+        'newPass123!',
+      );
     });
   });
 });
