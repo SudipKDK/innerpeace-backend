@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - staging
+  pull_request:
+    branches:
+      - staging
+permissions:
+  contents: read
+  id-token: write
+jobs:
+    build-lint-test:
+        runs-on: ubuntu-latest
+        steps:
+        - uses: actions/checkout@v4
+        - uses: actions/setup-node@v4
+          with:
+            node-version: 24
+            cache: "npm"
+            cache-dependency-path: package-lock.json
+        - run: npm ci
+        - run: npm run lint
+        - run: npm build
+        - run: npm test

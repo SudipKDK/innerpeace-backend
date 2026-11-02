@@ -1,0 +1,97 @@
+# name: Deploy
+
+# on:
+#   push:
+#     branches: [main]
+
+# permissions:
+#   contents: read
+
+# concurrency:
+#   group: deploy-production
+#   cancel-in-progress: false
+
+# env:
+#   AWS_REGION: ap-south-1
+#   ECR_REPOSITORY: innerpeace-prod-backend
+#   ECS_CLUSTER: innerpeace-prod-cluster
+#   ECS_SERVICE: backend
+#   ECS_TASK_DEFINITION: innerpeace-prod-backend
+#   CONTAINER_NAME: backend
+
+# jobs:
+#   ci:
+#     name: CI
+#     uses: ./.github/workflows/ci.yml
+
+#   security:
+#     name: Security
+#     uses: ./.github/workflows/security.yml
+#     permissions:
+#       contents: read
+#       actions: read
+#       pull-requests: read
+#       security-events: write
+
+#   deploy:
+#     name: Build, scan and deploy backend
+#     runs-on: ubuntu-latest
+#     timeout-minutes: 45
+#     needs: [ci, security]
+#     environment: production
+#     permissions:
+#       contents: read
+#       id-token: write # OIDC: temporary AWS credentials, no long-lived keys
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v4
+
+#       - name: Configure AWS credentials (OIDC)
+#         uses: aws-actions/configure-aws-credentials@v4
+#         with:
+#           role-to-assume: arn:aws:iam::087232568043:role/innerpeace-backend-gha
+#           aws-region: ${{ env.AWS_REGION }}
+
+#       - name: Login to Amazon ECR
+#         id: ecr
+#         uses: aws-actions/amazon-ecr-login@v2
+
+#       - name: Set image name
+#         run: echo "IMAGE=${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}" >> "$GITHUB_ENV"
+
+#       - name: Build backend image
+#         run: docker build --platform linux/amd64 -t "$IMAGE" .
+
+#       - name: Trivy container scan
+#         uses: aquasecurity/trivy-action@0.28.0
+#         with:
+#           image-ref: ${{ env.IMAGE }}
+#           severity: CRITICAL,HIGH
+#           exit-code: 1
+#           ignore-unfixed: true
+
+#       - name: Push image to ECR
+#         run: docker push "$IMAGE"
+
+#       - name: Download current task definition
+#         run: |
+#           aws ecs describe-task-definition \
+#             --task-definition "$ECS_TASK_DEFINITION" \
+#             --query taskDefinition > task-definition.json
+
+#       - name: Render task definition with new image
+#         id: render
+#         uses: aws-actions/amazon-ecs-render-task-definition@v1
+#         with:
+#           task-definition: task-definition.json
+#           container-name: ${{ env.CONTAINER_NAME }}
+#           image: ${{ env.IMAGE }}
+
+#       - name: Deploy to ECS
+#         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+#         with:
+#           task-definition: ${{ steps.render.outputs.task-definition }}
+#           service: ${{ env.ECS_SERVICE }}
+#           cluster: ${{ env.ECS_CLUSTER }}
+#           wait-for-service-stability: true
+#           wait-for-minutes: 15

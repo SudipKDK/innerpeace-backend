@@ -1,0 +1,35 @@
+name: DAST
+
+on:
+  schedule:
+    - cron: '0 2 * * *' # Runs at 2:00 AM UTC every day
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dast-zap
+  cancel-in-progress: false
+
+jobs:
+  zap-scan:
+    name: DAST (OWASP ZAP Baseline)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Checkout code (for optional ZAP rules file)
+        uses: actions/checkout@v4
+
+      - name: Run ZAP baseline scan
+        uses: zaproxy/action-baseline@v0.12.0
+        with:
+          target: https://innerpeaceapi.sudipk.xyz
+          fail_action: true
+          allow_issue_writing: true
+          issue_title: "ZAP DAST Report"
+          artifact_name: zap_baseline_report
+          cmd_options: "-a"
