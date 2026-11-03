@@ -11,13 +11,25 @@ concurrency:
   group: deploy-production
   cancel-in-progress: false
 
+# NOTE on deploy strategy:
+# The ECS task definitions + service are managed by Terraform (infra/modules/ecs),
+# and secrets are pulled from AWS Secrets Manager (innerpeace-prod/backend,
+# innerpeace-prod/db-password). Terraform is the source of truth for the task
+# definition, so this pipeline must NOT register its own task definition
+# revision (that would drift from Terraform and be reverted on the next apply).
+#
+# Instead: build + scan + push the image to ECR, tagged with both the commit SHA
+# (immutable, traceable, for rollback) and `latest` (what var.image_tag in
+# terraform.tfvars points the task definition at). Then roll the running Fargate
+# service with `--force-new-deployment`, which restarts tasks so they pull the
+# freshly-pushed `latest` image — without creating a new task definition
+# revision, so Terraform shows no drift.
+
 env:
   AWS_REGION: ap-south-1
   ECR_REPOSITORY: innerpeace-prod-backend
   ECS_CLUSTER: innerpeace-prod-cluster
   ECS_SERVICE: backend
-  ECS_TASK_DEFINITION: innerpeace-prod-backend
-  CONTAINER_NAME: backend
 
 jobs:
   ci:
@@ -44,54 +56,61 @@ jobs:
       id-token: write # OIDC: temporary AWS credentials, no long-lived keys
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Configure AWS credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
         with:
           role-to-assume: arn:aws:iam::087232568043:role/innerpeace-backend-gha
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
         id: ecr
-        uses: aws-actions/amazon-ecr-login@v2
+        uses: aws-actions/amazon-ecr-login@03f1aad4c6c7ffd436567f42f9384779290529bd # v2.1.7
 
-      - name: Set image name
-        run: echo "IMAGE=${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}" >> "$GITHUB_ENV"
+      - name: Set image tags
+        run: |
+          REGISTRY="${{ steps.ecr.outputs.registry }}"
+          echo "IMAGE_SHA=${REGISTRY}/${ECR_REPOSITORY}:${GITHUB_SHA}" >> "$GITHUB_ENV"
+          echo "IMAGE_LATEST=${REGISTRY}/${ECR_REPOSITORY}:latest" >> "$GITHUB_ENV"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
       - name: Build backend image
-        run: docker build --platform linux/amd64 -t "$IMAGE" .
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          platforms: linux/amd64
+          push: false
+          load: true
+          tags: ${{ env.IMAGE_SHA }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Trivy container scan
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
-          image-ref: ${{ env.IMAGE }}
+          image-ref: ${{ env.IMAGE_SHA }}
           severity: CRITICAL,HIGH
           exit-code: 1
           ignore-unfixed: true
 
-      - name: Push image to ECR
-        run: docker push "$IMAGE"
-
-      - name: Download current task definition
+      - name: Push image to ECR (sha + latest)
         run: |
-          aws ecs describe-task-definition \
-            --task-definition "$ECS_TASK_DEFINITION" \
-            --query taskDefinition > task-definition.json
+          docker push "$IMAGE_SHA"
+          docker tag "$IMAGE_SHA" "$IMAGE_LATEST"
+          docker push "$IMAGE_LATEST"
 
-      - name: Render task definition with new image
-        id: render
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: task-definition.json
-          container-name: ${{ env.CONTAINER_NAME }}
-          image: ${{ env.IMAGE }}
+      - name: Roll ECS service to the new image
+        run: |
+          aws ecs update-service \
+            --cluster "$ECS_CLUSTER" \
+            --service "$ECS_SERVICE" \
+            --force-new-deployment
 
-      - name: Deploy to ECS
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
-        with:
-          task-definition: ${{ steps.render.outputs.task-definition }}
-          service: ${{ env.ECS_SERVICE }}
-          cluster: ${{ env.ECS_CLUSTER }}
-          wait-for-service-stability: true
-          wait-for-minutes: 15
+      - name: Wait for service stability
+        run: |
+          aws ecs wait services-stable \
+            --cluster "$ECS_CLUSTER" \
+            --services "$ECS_SERVICE"
