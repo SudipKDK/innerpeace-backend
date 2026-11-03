@@ -66,4 +66,3 @@ Build and run the backend image:
 docker build -t innerpeace-backend .
 docker run -p 3000:3000 --env-file .env.docker innerpeace-backend
 ```
-test
