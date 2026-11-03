@@ -51,7 +51,7 @@ describe('JourneyService', () => {
         eventDate: '2026-01-01',
         status: JourneyStatus.PUBLISHED,
       };
-      const result = await service.createJourney(dto as any);
+      const result = await service.createJourney(dto);
 
       expect(result.title).toBe('Trip');
       expect(result.image).toBeNull();
@@ -67,7 +67,7 @@ describe('JourneyService', () => {
       };
       const mockFile = { originalname: 'pic.jpg' } as any;
 
-      const result = await service.createJourney(dto as any, mockFile);
+      const result = await service.createJourney(dto, mockFile);
 
       expect(s3Service.uploadPublicFile).toHaveBeenCalledWith(
         mockFile,

@@ -68,7 +68,7 @@ describe('ReelsService', () => {
         title: 'New Reel',
         youtubeUrl: 'https://youtube.com/reel1',
       };
-      const result = await service.create(dto as any);
+      const result = await service.create(dto);
 
       expect(result.youtubeUrl).toBe('https://youtube.com/reel1');
       expect(repo.save).toHaveBeenCalled();

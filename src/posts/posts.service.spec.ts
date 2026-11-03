@@ -61,7 +61,7 @@ describe('PostsService', () => {
         status: PostStatus.PUBLISHED,
       };
 
-      const result = await service.createPost(dto as any, null as any, 1);
+      const result = await service.createPost(dto, null as any, 1);
       expect(result.title).toBe('First Post');
       expect(result.slug).toBe('first-post');
       expect(result.image).toBeNull();
@@ -76,7 +76,7 @@ describe('PostsService', () => {
       };
       const file = { originalname: 'banner.png' } as any;
 
-      const result = await service.createPost(dto as any, file, 1);
+      const result = await service.createPost(dto, file, 1);
       expect(s3Service.uploadPublicFile).toHaveBeenCalledWith(
         file,
         'posts/images',
