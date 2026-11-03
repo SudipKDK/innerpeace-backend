@@ -26,9 +26,11 @@ WORKDIR /app
 # Copy package files again
 COPY package*.json ./
 
-# Install ONLY production dependencies (keeps image small)
+
+# Install ONLY production dependencies, then remove npm (not needed at runtime)
 RUN npm ci --omit=dev && \
-    npm cache clean --force
+    npm cache clean --force && \
+    rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
 
 # Create and switch to a non-root user
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
