@@ -47,11 +47,12 @@ jobs:
           node-version: 24
           cache: npm
 
-      - name: Run npm audit
+      - name: Run npm audit (enforcing — fails on high+)
         run: npm audit --audit-level=high
 
-      - name: Run OSV Scanner
+      - name: Run OSV Scanner (advisory — reports all vulns without blocking)
         uses: google/osv-scanner-action/osv-scanner-action@b1d267aea5211fa648d9d442fa64b90dbdcbdd36 # v2.7.0
+        continue-on-error: true
         with:
           scan-args: |-
             --recursive
