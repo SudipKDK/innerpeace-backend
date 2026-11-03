@@ -3,6 +3,7 @@ import {
   ValidationOptions,
   ValidationArguments,
 } from 'class-validator';
+import sanitizeHtml from 'sanitize-html';
 
 export function IsSanitizedHtml(validationOptions?: ValidationOptions) {
   return function (object: object, propertyName: string) {
@@ -15,17 +16,32 @@ export function IsSanitizedHtml(validationOptions?: ValidationOptions) {
         validate(value: any) {
           if (typeof value !== 'string') return false;
 
-          // Check for potentially dangerous HTML/script tags
-          const dangerousPatterns = [
-            /<script[^>]*>.*?<\/script>/gi,
-            /<iframe[^>]*>.*?<\/iframe>/gi,
-            /javascript:/gi,
-            /on\w+\s*=/gi,
-            /<object[^>]*>.*?<\/object>/gi,
-            /<embed[^>]*>.*?<\/embed>/gi,
-          ];
+          const clean = sanitizeHtml(value, {
+            allowedTags: [
+              'p',
+              'br',
+              'strong',
+              'em',
+              'ul',
+              'ol',
+              'li',
+              'a',
+              'img',
+              'blockquote',
+              'code',
+              'pre',
+              'h1',
+              'h2',
+              'h3',
+            ],
+            allowedAttributes: {
+              a: ['href', 'title'],
+              img: ['src', 'alt', 'title'],
+            },
+            allowedSchemes: ['http', 'https', 'mailto'],
+          });
 
-          return !dangerousPatterns.some((pattern) => pattern.test(value));
+          return value === clean;
         },
         defaultMessage(args: ValidationArguments) {
           return `${args.property} contains potentially dangerous HTML content`;
