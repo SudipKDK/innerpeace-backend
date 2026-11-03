@@ -30,8 +30,12 @@ COPY package*.json ./
 RUN npm ci --omit=dev && \
     npm cache clean --force
 
+# Create and switch to a non-root user
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+USER appuser
+
 # Copy the built application from the builder stage
-COPY --from=builder /app/dist ./dist
+COPY --from=builder --chown=appuser:appgroup /app/dist ./dist
 
 # Expose the port the app runs on
 EXPOSE 3000

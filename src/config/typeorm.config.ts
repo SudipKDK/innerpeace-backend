@@ -21,7 +21,9 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
       synchronize: process.env.NODE_ENV !== 'production',
 
       ssl:
-        process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+        process.env.DB_SSL === 'true'
+          ? { rejectUnauthorized: process.env.DB_SSL_STRICT !== 'false' }
+          : false,
     };
   }
 }
