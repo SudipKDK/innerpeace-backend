@@ -5,14 +5,14 @@ import {
 } from 'class-validator';
 
 export function IsSlug(validationOptions?: ValidationOptions) {
-  return function (object: Object, propertyName: string) {
+  return function (object: object, propertyName: string) {
     registerDecorator({
       name: 'isSlug',
       target: object.constructor,
       propertyName: propertyName,
       options: validationOptions,
       validator: {
-        validate(value: any, args: ValidationArguments) {
+        validate(value: any) {
           if (typeof value !== 'string') return false;
 
           // Slug should be lowercase, contain only letters, numbers, hyphens

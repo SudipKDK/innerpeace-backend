@@ -1,3 +1,7 @@
+jest.mock('../common/utils/validate-image', () => ({
+  validateImageBuffer: jest.fn().mockResolvedValue(undefined),
+}));
+
 import { Test, TestingModule } from '@nestjs/testing';
 import { PostsController } from './controller/posts.controller';
 import { PostsService } from './service/posts.service';
@@ -32,7 +36,10 @@ describe('PostsController', () => {
     it('should call service.createPost with user id', async () => {
       const dto = { title: 'New Post' } as any;
       const req: any = { user: { id: 10 } };
-      (service.createPost as jest.Mock).mockResolvedValueOnce({ id: 1, ...dto });
+      (service.createPost as jest.Mock).mockResolvedValueOnce({
+        id: 1,
+        ...dto,
+      });
 
       const result = await controller.create(dto, null as any, req);
       expect(result).toHaveProperty('id', 1);
@@ -42,7 +49,10 @@ describe('PostsController', () => {
 
   describe('findOne', () => {
     it('should return post by id', async () => {
-      (service.findOneById as jest.Mock).mockResolvedValueOnce({ id: 1, title: 'Test' } as any);
+      (service.findOneById as jest.Mock).mockResolvedValueOnce({
+        id: 1,
+        title: 'Test',
+      } as any);
 
       const result = await controller.findOne(1);
       expect(result).toEqual({ id: 1, title: 'Test' });
@@ -53,7 +63,9 @@ describe('PostsController', () => {
   describe('remove', () => {
     it('should delete post', async () => {
       const req: any = { user: { id: 10 } };
-      (service.removePost as jest.Mock).mockResolvedValueOnce({ message: 'Deleted' });
+      (service.removePost as jest.Mock).mockResolvedValueOnce({
+        message: 'Deleted',
+      });
 
       const result = await controller.remove(1, req);
       expect(result).toEqual({ message: 'Deleted' });

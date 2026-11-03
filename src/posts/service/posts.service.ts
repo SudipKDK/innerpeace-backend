@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UsersService } from 'src/users/service/users.service';
@@ -16,8 +20,8 @@ export class PostsService {
     @InjectRepository(Post)
     private readonly postRepository: Repository<Post>,
     private readonly userService: UsersService,
-    private readonly s3Service: S3Service
-  ) { }
+    private readonly s3Service: S3Service,
+  ) {}
 
   private async generateUniqueSlugFromTitle(title: string): Promise<string> {
     const base = (slugify(title) || 'post').slice(0, 150);
@@ -32,8 +36,12 @@ export class PostsService {
 
     return slug;
   }
-  
-  async createPost(createPostDto: CreatePostDto, image: Express.Multer.File | undefined, authorId: number) {
+
+  async createPost(
+    createPostDto: CreatePostDto,
+    image: Express.Multer.File | undefined,
+    authorId: number,
+  ) {
     const user = await this.userService.getUserById(authorId);
     const slug = await this.generateUniqueSlugFromTitle(createPostDto.title);
     let imageKey: string | null = null;
@@ -41,9 +49,7 @@ export class PostsService {
       imageKey = await this.s3Service.uploadPublicFile(image, 'posts/images');
     }
     const publishedAt =
-      createPostDto.status === PostStatus.PUBLISHED
-        ? new Date()
-        : null;
+      createPostDto.status === PostStatus.PUBLISHED ? new Date() : null;
 
     const post = this.postRepository.create({
       ...createPostDto,
@@ -54,7 +60,6 @@ export class PostsService {
     });
 
     const createPost = await this.postRepository.save(post);
-
 
     return {
       ...createPost,
@@ -79,11 +84,12 @@ export class PostsService {
     return this.withImageUrl(post);
   }
 
-
-
   async findAllPosts(paginationQueryDto: PaginationQueryDto) {
     const page = Math.max(1, Number(paginationQueryDto.page) || 1);
-    const limit = Math.min(100, Math.max(1, Number(paginationQueryDto.limit) || 10));
+    const limit = Math.min(
+      100,
+      Math.max(1, Number(paginationQueryDto.limit) || 10),
+    );
 
     const posts = await this.postRepository.find({
       relations: { user: true },
@@ -107,7 +113,8 @@ export class PostsService {
   async updatePost(
     id: number,
     updatePostDto: UpdatePostDto,
-    image: Express.Multer.File | undefined,    userId: number,
+    image: Express.Multer.File | undefined,
+    userId: number,
   ) {
     const post = await this.postRepository.findOne({
       where: { id },

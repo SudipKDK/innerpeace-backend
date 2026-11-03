@@ -37,13 +37,20 @@ describe('PostCommentsController', () => {
 
       const result = await controller.create(1, { comment: 'Great' }, mockReq);
       expect(result).toEqual({ success: true, data: mockComment });
-      expect(service.createForPost).toHaveBeenCalledWith(1, { comment: 'Great' }, '127.0.0.1');
+      expect(service.createForPost).toHaveBeenCalledWith(
+        1,
+        { comment: 'Great' },
+        '127.0.0.1',
+      );
     });
   });
 
   describe('list', () => {
     it('should return comments list', async () => {
-      const mockResult = { data: [], meta: { page: 1, limit: 20, total: 0, totalPages: 0 } };
+      const mockResult = {
+        data: [],
+        meta: { page: 1, limit: 20, total: 0, totalPages: 0 },
+      };
       (service.listForPost as jest.Mock).mockResolvedValueOnce(mockResult);
 
       const result = await controller.list(1, '1', '20');
@@ -54,10 +61,15 @@ describe('PostCommentsController', () => {
 
   describe('deleteComment', () => {
     it('should delete comment', async () => {
-      (service.deleteComment as jest.Mock).mockResolvedValueOnce({ success: true });
+      (service.deleteComment as jest.Mock).mockResolvedValueOnce({
+        success: true,
+      });
 
       const result = await controller.deleteComment(1);
-      expect(result).toEqual({ success: true, message: 'Comment deleted successfully' });
+      expect(result).toEqual({
+        success: true,
+        message: 'Comment deleted successfully',
+      });
       expect(service.deleteComment).toHaveBeenCalledWith(1);
     });
   });

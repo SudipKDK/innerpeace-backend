@@ -13,13 +13,15 @@ describe('JwtStrategy', () => {
     strategy = new JwtStrategy(configService);
   });
 
-  it('should validate and return user payload', async () => {
+  it('should validate and return user payload', () => {
     const payload = { sub: 1, username: 'john', role: 'admin' };
-    const result = await strategy.validate(payload);
+    const result = strategy.validate(payload);
     expect(result).toEqual({ id: 1, username: 'john', role: 'admin' });
   });
 
-  it('should throw UnauthorizedException if sub is missing', async () => {
-    await expect(strategy.validate({ username: 'john' })).rejects.toThrow(UnauthorizedException);
+  it('should throw UnauthorizedException if sub is missing', () => {
+    expect(() => strategy.validate({ username: 'john' })).toThrow(
+      UnauthorizedException,
+    );
   });
 });

@@ -33,7 +33,10 @@ describe('MessagesController', () => {
       const req: any = { ip: '192.168.1.1', socket: {} };
 
       const result = await controller.sendAnonymousMessage(dto, req);
-      expect(result).toEqual({ message: 'Message sent successfully', success: true });
+      expect(result).toEqual({
+        message: 'Message sent successfully',
+        success: true,
+      });
       expect(service.createMessage).toHaveBeenCalledWith(dto, '192.168.1.1');
     });
   });
@@ -52,7 +55,10 @@ describe('MessagesController', () => {
   describe('markAsRead', () => {
     it('should mark message as read', async () => {
       const result = await controller.markAsRead(1);
-      expect(result).toEqual({ message: 'Message marked as read', success: true });
+      expect(result).toEqual({
+        message: 'Message marked as read',
+        success: true,
+      });
       expect(service.markAsRead).toHaveBeenCalledWith(1);
     });
   });

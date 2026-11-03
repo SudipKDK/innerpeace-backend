@@ -6,7 +6,7 @@ import { Journey } from './entity/journey.entity';
 import { S3Module } from 'src/s3/s3.module';
 
 @Module({
-  imports:[TypeOrmModule.forFeature([Journey]),S3Module],
+  imports: [TypeOrmModule.forFeature([Journey]), S3Module],
   controllers: [JourneyController],
   providers: [JourneyService],
 })

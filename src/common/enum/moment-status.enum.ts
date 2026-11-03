@@ -1,4 +1,4 @@
-export enum MomentVideoStatus{
-    UPLOADED='UPLOADED',
-    PENDING='PENDING'
+export enum MomentVideoStatus {
+  UPLOADED = 'UPLOADED',
+  PENDING = 'PENDING',
 }

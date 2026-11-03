@@ -1,13 +1,11 @@
-
 import {
-    Column,
-    CreateDateColumn,
-    Entity,
-    Index,
-    ManyToOne,
-    PrimaryGeneratedColumn,
-    Check,
-    Unique,
+  Column,
+  CreateDateColumn,
+  Entity,
+  Index,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  Check,
 } from 'typeorm';
 import { User } from 'src/users/entity/user.entity';
 
@@ -15,25 +13,25 @@ import { User } from 'src/users/entity/user.entity';
 @Index(['user', 'expiresAt'])
 @Check(`"expiresAt" > "createdAt"`)
 export class PasswordResetToken {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @ManyToOne(() => User, { onDelete: 'CASCADE' })
-    @Index()
-    user: User;
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @Index()
+  user: User;
 
-    @Column({ type: 'varchar', length: 128, unique: true })
-    tokenHash: string;
+  @Column({ type: 'varchar', length: 128, unique: true })
+  tokenHash: string;
 
-    @Column({ type: 'timestamptz' })
-    expiresAt: Date;
+  @Column({ type: 'timestamptz' })
+  expiresAt: Date;
 
-    @Column({ type: 'boolean', default: false })
-    isUsed: boolean;
+  @Column({ type: 'boolean', default: false })
+  isUsed: boolean;
 
-    @Column({ type: 'timestamptz', nullable: true })
-    usedAt: Date | null;
+  @Column({ type: 'timestamptz', nullable: true })
+  usedAt: Date | null;
 
-    @CreateDateColumn({ type: 'timestamptz' })
-    createdAt: Date;
+  @CreateDateColumn({ type: 'timestamptz' })
+  createdAt: Date;
 }

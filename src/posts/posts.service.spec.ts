@@ -17,7 +17,9 @@ describe('PostsService', () => {
     postRepo = {
       exists: jest.fn().mockResolvedValue(false),
       create: jest.fn().mockImplementation((dto) => dto),
-      save: jest.fn().mockImplementation((p) => Promise.resolve({ id: 1, ...p })),
+      save: jest
+        .fn()
+        .mockImplementation((p) => Promise.resolve({ id: 1, ...p })),
       findAndCount: jest.fn().mockResolvedValue([[], 0]),
       findOne: jest.fn(),
       delete: jest.fn(),
@@ -28,7 +30,9 @@ describe('PostsService', () => {
     };
 
     s3Service = {
-      fileUrl: jest.fn().mockImplementation((k) => (k ? `https://s3/${k}` : null)),
+      fileUrl: jest
+        .fn()
+        .mockImplementation((k) => (k ? `https://s3/${k}` : null)),
       uploadPublicFile: jest.fn().mockResolvedValue('posts/images/test.jpg'),
       deletePublicFile: jest.fn().mockResolvedValue(undefined),
     };
@@ -51,9 +55,13 @@ describe('PostsService', () => {
 
   describe('createPost', () => {
     it('should create post without image', async () => {
-      const dto = { title: 'First Post', content: 'Testing...', status: PostStatus.PUBLISHED };
+      const dto = {
+        title: 'First Post',
+        content: 'Testing...',
+        status: PostStatus.PUBLISHED,
+      };
 
-      const result = await service.createPost(dto as any, null as any, 1);
+      const result = await service.createPost(dto, null as any, 1);
       expect(result.title).toBe('First Post');
       expect(result.slug).toBe('first-post');
       expect(result.image).toBeNull();
@@ -61,18 +69,29 @@ describe('PostsService', () => {
     });
 
     it('should upload image if provided', async () => {
-      const dto = { title: 'Image Post', content: 'Testing...', status: PostStatus.PUBLISHED };
+      const dto = {
+        title: 'Image Post',
+        content: 'Testing...',
+        status: PostStatus.PUBLISHED,
+      };
       const file = { originalname: 'banner.png' } as any;
 
-      const result = await service.createPost(dto as any, file, 1);
-      expect(s3Service.uploadPublicFile).toHaveBeenCalledWith(file, 'posts/images');
+      const result = await service.createPost(dto, file, 1);
+      expect(s3Service.uploadPublicFile).toHaveBeenCalledWith(
+        file,
+        'posts/images',
+      );
       expect(result.image).toBe('https://s3/posts/images/test.jpg');
     });
   });
 
   describe('findOneById', () => {
     it('should return post by id', async () => {
-      postRepo.findOne.mockResolvedValueOnce({ id: 1, title: 'Found', image: 'test.jpg' });
+      postRepo.findOne.mockResolvedValueOnce({
+        id: 1,
+        title: 'Found',
+        image: 'test.jpg',
+      });
 
       const result = await service.findOneById(1);
       expect(result.id).toBe(1);

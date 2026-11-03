@@ -24,6 +24,8 @@ describe('CustomValidationPipe', () => {
   it('should throw BadRequestException for XSS script pattern', async () => {
     const malicious = { content: '<script>alert("hacked")</script>' };
 
-    await expect(pipe.transform(malicious, metadata)).rejects.toThrow(BadRequestException);
+    await expect(pipe.transform(malicious, metadata)).rejects.toThrow(
+      BadRequestException,
+    );
   });
 });

@@ -13,7 +13,9 @@ export class RequestSizeLimitMiddleware implements NestMiddleware {
 
   use(req: Request, res: Response, next: NextFunction) {
     const contentLength = parseInt(req.headers['content-length'] || '0', 10);
-    const isFileUpload = req.headers['content-type']?.includes('multipart/form-data');
+    const isFileUpload = req.headers['content-type']?.includes(
+      'multipart/form-data',
+    );
 
     // Check Content-Length header
     if (contentLength > 0) {
@@ -40,7 +42,9 @@ export class RequestSizeLimitMiddleware implements NestMiddleware {
     let receivedBytes = 0;
     const monitorSize = (chunk: any) => {
       if (chunk) {
-        receivedBytes += Buffer.isBuffer(chunk) ? chunk.length : Buffer.byteLength(chunk);
+        receivedBytes += Buffer.isBuffer(chunk)
+          ? chunk.length
+          : Buffer.byteLength(chunk);
         const maxSize = this.maxBodySize;
 
         if (receivedBytes > maxSize) {

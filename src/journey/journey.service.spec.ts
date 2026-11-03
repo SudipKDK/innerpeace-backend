@@ -14,7 +14,9 @@ describe('JourneyService', () => {
   beforeEach(async () => {
     repo = {
       create: jest.fn().mockImplementation((dto) => dto),
-      save: jest.fn().mockImplementation((j) => Promise.resolve({ id: 1, ...j })),
+      save: jest
+        .fn()
+        .mockImplementation((j) => Promise.resolve({ id: 1, ...j })),
       find: jest.fn().mockResolvedValue([]),
       findOne: jest.fn(),
       delete: jest.fn(),
@@ -43,8 +45,13 @@ describe('JourneyService', () => {
 
   describe('createJourney', () => {
     it('should create journey without image', async () => {
-      const dto = { title: 'Trip', description: 'Fun', eventDate: '2026-01-01', status: JourneyStatus.PUBLISHED };
-      const result = await service.createJourney(dto as any);
+      const dto = {
+        title: 'Trip',
+        description: 'Fun',
+        eventDate: '2026-01-01',
+        status: JourneyStatus.PUBLISHED,
+      };
+      const result = await service.createJourney(dto);
 
       expect(result.title).toBe('Trip');
       expect(result.image).toBeNull();
@@ -52,19 +59,34 @@ describe('JourneyService', () => {
     });
 
     it('should upload image if provided', async () => {
-      const dto = { title: 'Trip', description: 'Fun', eventDate: '2026-01-01', status: JourneyStatus.PUBLISHED };
+      const dto = {
+        title: 'Trip',
+        description: 'Fun',
+        eventDate: '2026-01-01',
+        status: JourneyStatus.PUBLISHED,
+      };
       const mockFile = { originalname: 'pic.jpg' } as any;
 
-      const result = await service.createJourney(dto as any, mockFile);
+      const result = await service.createJourney(dto, mockFile);
 
-      expect(s3Service.uploadPublicFile).toHaveBeenCalledWith(mockFile, 'journey/images');
+      expect(s3Service.uploadPublicFile).toHaveBeenCalledWith(
+        mockFile,
+        'journey/images',
+      );
       expect(result.image).toBe('https://s3/journey/images/test.jpg');
     });
   });
 
   describe('getJourney', () => {
     it('should return published journeys', async () => {
-      repo.find.mockResolvedValueOnce([{ id: 1, title: 'Published', status: JourneyStatus.PUBLISHED, image: 'img.jpg' }]);
+      repo.find.mockResolvedValueOnce([
+        {
+          id: 1,
+          title: 'Published',
+          status: JourneyStatus.PUBLISHED,
+          image: 'img.jpg',
+        },
+      ]);
 
       const result = await service.getJourney();
       expect(result).toHaveLength(1);
@@ -74,7 +96,11 @@ describe('JourneyService', () => {
 
   describe('getJourneyById', () => {
     it('should return journey by id', async () => {
-      repo.findOne.mockResolvedValueOnce({ id: 1, title: 'Found', image: null });
+      repo.findOne.mockResolvedValueOnce({
+        id: 1,
+        title: 'Found',
+        image: null,
+      });
 
       const result = await service.getJourneyById(1);
       expect(result.id).toBe(1);
@@ -83,7 +109,9 @@ describe('JourneyService', () => {
     it('should throw NotFoundException if not found', async () => {
       repo.findOne.mockResolvedValueOnce(null);
 
-      await expect(service.getJourneyById(99)).rejects.toThrow(NotFoundException);
+      await expect(service.getJourneyById(99)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });

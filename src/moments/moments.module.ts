@@ -6,7 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Moments } from './entity/moments.entity';
 
 @Module({
-  imports:[S3Module,TypeOrmModule.forFeature([Moments])],
+  imports: [S3Module, TypeOrmModule.forFeature([Moments])],
   controllers: [MomentsController],
   providers: [MomentsService],
 })

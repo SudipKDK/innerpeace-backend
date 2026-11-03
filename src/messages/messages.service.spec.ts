@@ -10,7 +10,9 @@ describe('MessagesService', () => {
   beforeEach(async () => {
     repo = {
       create: jest.fn().mockImplementation((dto) => dto),
-      save: jest.fn().mockImplementation((m) => Promise.resolve({ id: 1, ...m })),
+      save: jest
+        .fn()
+        .mockImplementation((m) => Promise.resolve({ id: 1, ...m })),
       find: jest.fn().mockResolvedValue([]),
       update: jest.fn().mockResolvedValue({ affected: 1 }),
       count: jest.fn().mockResolvedValue(0),

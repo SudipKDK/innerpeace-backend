@@ -1,4 +1,16 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { JourneyService } from '../service/journey.service';
 import { CreateJourneyDto } from '../dto/create-journey.dto';
 import { AuthGuard } from '@nestjs/passport';
@@ -12,7 +24,7 @@ import { validateImageBuffer } from '../../common/utils/validate-image';
 
 @Controller('journey')
 export class JourneyController {
-  constructor(private readonly journeyService: JourneyService) { }
+  constructor(private readonly journeyService: JourneyService) {}
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @ApiBearerAuth('jwt')
@@ -36,14 +48,12 @@ export class JourneyController {
   async create(
     @Body() createJourneyDto: CreateJourneyDto,
     @UploadedFile() image: Express.Multer.File | undefined,
-    @Req() req: any,
   ) {
     if (image) {
       await validateImageBuffer(image);
     }
     return this.journeyService.createJourney(createJourneyDto, image);
   }
-
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @ApiBearerAuth('jwt')
@@ -67,7 +77,6 @@ export class JourneyController {
     @Param('id', ParseIntPipe) id: number,
     @Body() updateJourneyDto: UpdateJourneyDto,
     @UploadedFile() image: Express.Multer.File | undefined,
-    @Req() req: any,
   ) {
     if (image) {
       await validateImageBuffer(image);
@@ -78,7 +87,7 @@ export class JourneyController {
   @ApiBearerAuth('jwt')
   @Roles(Role.ADMIN)
   @Delete(':id')
-  delete(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
+  delete(@Param('id', ParseIntPipe) id: number) {
     return this.journeyService.removeJourney(id);
   }
 

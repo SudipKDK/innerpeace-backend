@@ -1,5 +1,11 @@
-import { IsDateString, IsEnum, IsOptional, IsString, MaxLength } from "class-validator";
-import { JourneyStatus } from "src/common/enum/journey-status.enum";
+import {
+  IsDateString,
+  IsEnum,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator';
+import { JourneyStatus } from 'src/common/enum/journey-status.enum';
 
 export class CreateJourneyDto {
   @IsString()
@@ -11,8 +17,6 @@ export class CreateJourneyDto {
 
   @IsDateString()
   eventDate: string;
-
-
 
   @IsOptional()
   @IsEnum(JourneyStatus)

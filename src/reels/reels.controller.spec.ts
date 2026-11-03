@@ -43,7 +43,7 @@ describe('ReelsController', () => {
       const dto = { youtubeUrl: 'https://youtube.com/watch?v=1' };
       (service.create as jest.Mock).mockResolvedValueOnce({ id: 1, ...dto });
 
-      const result = await controller.create(dto as any);
+      const result = await controller.create(dto);
       expect(result).toEqual({ id: 1, ...dto });
       expect(service.create).toHaveBeenCalledWith(dto);
     });
@@ -54,7 +54,7 @@ describe('ReelsController', () => {
       const dto = { title: 'Updated' };
       (service.update as jest.Mock).mockResolvedValueOnce({ id: 1, ...dto });
 
-      const result = await controller.update(1, dto as any);
+      const result = await controller.update(1, dto);
       expect(result).toEqual({ id: 1, ...dto });
       expect(service.update).toHaveBeenCalledWith(1, dto);
     });

@@ -30,23 +30,33 @@ describe('MomentsController', () => {
   describe('presign', () => {
     it('should validate mimeType and call createPresignedUpload', async () => {
       const mockResult = { momentId: 1, key: 'key', uploadUrl: 'http' };
-      (service.createPresignedUpload as jest.Mock).mockResolvedValueOnce(mockResult);
+      (service.createPresignedUpload as jest.Mock).mockResolvedValueOnce(
+        mockResult,
+      );
 
-      const result = await controller.presign({ mimeType: 'video/mp4', ext: 'mp4' });
+      const result = await controller.presign({
+        mimeType: 'video/mp4',
+        ext: 'mp4',
+      });
       expect(result).toEqual(mockResult);
-      expect(service.createPresignedUpload).toHaveBeenCalledWith('video/mp4', 'mp4');
+      expect(service.createPresignedUpload).toHaveBeenCalledWith(
+        'video/mp4',
+        'mp4',
+      );
     });
 
     it('should throw BadRequestException for non-video mimeType', async () => {
-      await expect(controller.presign({ mimeType: 'image/png' })).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(
+        controller.presign({ mimeType: 'image/png' }),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 
   describe('complete', () => {
     it('should mark moment as uploaded', async () => {
-      (service.markUploaded as jest.Mock).mockResolvedValueOnce({ success: true });
+      (service.markUploaded as jest.Mock).mockResolvedValueOnce({
+        success: true,
+      });
 
       const result = await controller.complete({ momentId: 1 });
       expect(result).toEqual({ success: true });
@@ -56,7 +66,9 @@ describe('MomentsController', () => {
 
   describe('play', () => {
     it('should return play URL', async () => {
-      (service.getPlayUrl as jest.Mock).mockResolvedValueOnce({ url: 'http://play' });
+      (service.getPlayUrl as jest.Mock).mockResolvedValueOnce({
+        url: 'http://play',
+      });
 
       const result = await controller.play(1);
       expect(result).toEqual({ url: 'http://play' });

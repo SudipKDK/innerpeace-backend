@@ -22,7 +22,8 @@ describe('S3Service', () => {
           useValue: {
             get: jest.fn((key: string) => {
               if (key === 'AWS_REGION') return 'ap-south-1';
-              if (key === 'AWS_BUCKET') return 'innerpeace-bucket-objects-store';
+              if (key === 'AWS_BUCKET')
+                return 'innerpeace-bucket-objects-store';
               return null;
             }),
           },

@@ -22,14 +22,22 @@ import { Role } from 'src/common/enum/role.enum';
 import { PaginationQueryDto } from 'src/common/dto/paginationQuery.dto';
 import { CreatePostDto } from '../dto/create-post.dto';
 import { UpdatePostDto } from '../dto/update-post.dto';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { validateImageBuffer } from '../../common/utils/validate-image';
 
 @ApiTags('posts')
 @Controller('posts')
 export class PostsController {
-  constructor(private readonly postsService: PostsService) { }
+  constructor(private readonly postsService: PostsService) {}
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @ApiBearerAuth('jwt')
@@ -42,13 +50,16 @@ export class PostsController {
         title: { type: 'string', example: 'My first post' },
         content: { type: 'string', example: 'Hello world...' },
         status: { type: 'string', enum: ['draft', 'published'] },
-        publishedAt: { type: 'string', format: 'date-time', example: '2024-01-01T00:00:00.000Z' },
+        publishedAt: {
+          type: 'string',
+          format: 'date-time',
+          example: '2024-01-01T00:00:00.000Z',
+        },
         image: { type: 'string', format: 'binary' },
       },
       required: ['title'],
     },
   })
-
   @ApiResponse({ status: 201, description: 'Post created' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden (admin only)' })
@@ -64,7 +75,9 @@ export class PostsController {
         // Allow only image files
         if (!file.mimetype.match(/^image\/(jpeg|jpg|png|webp|gif)$/)) {
           return callback(
-            new BadRequestException('Only image files (JPEG, PNG, WebP, GIF) are allowed'),
+            new BadRequestException(
+              'Only image files (JPEG, PNG, WebP, GIF) are allowed',
+            ),
             false,
           );
         }
@@ -75,7 +88,9 @@ export class PostsController {
         const allowedExts = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
         if (!ext || !allowedExts.includes(ext)) {
           return callback(
-            new BadRequestException('File extension does not match allowed types'),
+            new BadRequestException(
+              'File extension does not match allowed types',
+            ),
             false,
           );
         }
@@ -104,7 +119,6 @@ export class PostsController {
     return this.postsService.findAllPosts(paginationQueryDto);
   }
 
-
   @Get('id/:id')
   @ApiOperation({ summary: 'Get a post by id' })
   @ApiResponse({ status: 200, description: 'Post details' })
@@ -117,12 +131,9 @@ export class PostsController {
   @ApiOperation({ summary: 'Get a post by id and slug (canonical URL)' })
   @ApiResponse({ status: 200, description: 'Post details' })
   @ApiResponse({ status: 404, description: 'Post not found' })
-  findOneByIdAndSlug(
-    @Param('slug') slug: string,
-  ) {
+  findOneByIdAndSlug(@Param('slug') slug: string) {
     return this.postsService.findOneBySlug(slug);
   }
-
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @ApiBearerAuth()
@@ -140,7 +151,9 @@ export class PostsController {
         // Allow only image files
         if (!file.mimetype.match(/^image\/(jpeg|jpg|png|webp|gif)$/)) {
           return callback(
-            new BadRequestException('Only image files (JPEG, PNG, WebP, GIF) are allowed'),
+            new BadRequestException(
+              'Only image files (JPEG, PNG, WebP, GIF) are allowed',
+            ),
             false,
           );
         }
@@ -151,7 +164,9 @@ export class PostsController {
         const allowedExts = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
         if (!ext || !allowedExts.includes(ext)) {
           return callback(
-            new BadRequestException('File extension does not match allowed types'),
+            new BadRequestException(
+              'File extension does not match allowed types',
+            ),
             false,
           );
         }

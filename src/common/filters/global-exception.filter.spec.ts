@@ -1,5 +1,10 @@
 import { GlobalExceptionFilter } from './global-exception.filter';
-import { ArgumentsHost, BadRequestException, UnauthorizedException, HttpStatus } from '@nestjs/common';
+import {
+  ArgumentsHost,
+  BadRequestException,
+  UnauthorizedException,
+  HttpStatus,
+} from '@nestjs/common';
 
 describe('GlobalExceptionFilter', () => {
   let filter: GlobalExceptionFilter;

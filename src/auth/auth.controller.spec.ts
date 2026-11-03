@@ -36,7 +36,11 @@ describe('AuthController', () => {
 
   describe('registerUser', () => {
     it('should call authService.register and return the user', async () => {
-      const dto = { email: 'test@example.com', password: 'Pass!', username: 'user' } as any;
+      const dto = {
+        email: 'test@example.com',
+        password: 'Pass!',
+        username: 'user',
+      } as any;
       const expected = { id: 1, ...dto };
       (authService.register as jest.Mock).mockResolvedValueOnce(expected);
 
@@ -51,7 +55,9 @@ describe('AuthController', () => {
       const loginDto = { email: 'test@example.com', password: 'password' };
       const user = { id: 1, username: 'testuser', role: 'user' };
       (authService.validateUser as jest.Mock).mockResolvedValueOnce(user);
-      (authService.login as jest.Mock).mockReturnValueOnce({ access_token: 'token' });
+      (authService.login as jest.Mock).mockReturnValueOnce({
+        access_token: 'token',
+      });
 
       const result = await controller.login(loginDto);
       expect(result).toEqual({ access_token: 'token' });
@@ -62,19 +68,28 @@ describe('AuthController', () => {
 
   describe('forgot', () => {
     it('should call authService.forgotPassword', async () => {
-      (authService.forgotPassword as jest.Mock).mockResolvedValueOnce({ success: true });
+      (authService.forgotPassword as jest.Mock).mockResolvedValueOnce({
+        success: true,
+      });
 
       const result = await controller.forgot({ email: 'test@example.com' });
       expect(result).toEqual({ success: true });
-      expect(authService.forgotPassword).toHaveBeenCalledWith('test@example.com');
+      expect(authService.forgotPassword).toHaveBeenCalledWith(
+        'test@example.com',
+      );
     });
   });
 
   describe('reset', () => {
     it('should call authService.resetPassword', async () => {
-      (authService.resetPassword as jest.Mock).mockResolvedValueOnce({ success: true });
+      (authService.resetPassword as jest.Mock).mockResolvedValueOnce({
+        success: true,
+      });
 
-      const result = await controller.reset({ token: 'tok', newPassword: 'new' });
+      const result = await controller.reset({
+        token: 'tok',
+        newPassword: 'new',
+      });
       expect(result).toEqual({ success: true });
       expect(authService.resetPassword).toHaveBeenCalledWith('tok', 'new');
     });
